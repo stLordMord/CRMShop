@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrmBL.Model
@@ -10,11 +11,16 @@ namespace CrmBL.Model
     {
         Generator Generator = new Generator();
         Random rnd = new Random();
+        bool isWorking = false;
+
         public List<CashDesk> CashDesks { get; set; } = new List<CashDesk>();
         public List<Cart> Carts { get; set; } = new List<Cart>();
         public List<Check> Checks { get; set; } = new List<Check>();
         public List<Sell> Sells { get; set; } = new List<Sell>();
         public Queue<Seller> Sellers { get; set; } = new Queue<Seller>();
+
+        public int CustomerSpeed { get; set; } = 100;
+        public int CashDeskSpeed { get; set; } = 100;
 
         public ShopComputerModel()
         {
@@ -35,30 +41,52 @@ namespace CrmBL.Model
 
         public void Start()
         {
-            var customers = Generator.GetNewCustomers(10);
+            isWorking = true;
+            Task.Run(() => CreateCarts(10, CustomerSpeed)); // метод в отдельном потоке
 
-            var carts = new Queue<Cart>();  // создали корзину
-
-            foreach (var customer in customers) // соединили с покупателем
+            var CashDeskTasks = CashDesks.Select(c => new Task(() => CashDeskWork(c, CashDeskSpeed))); // коллекция задач
+            foreach(var task in CashDeskTasks)
             {
-                var cart = new Cart(customer);
-                foreach (var prod in Generator.GetRandomProducts(10, 30)) // нагрузили товар
+                task.Start();
+            }
+        }
+
+        public void Stop()
+        {
+            isWorking = false;
+        }
+
+        private void CashDeskWork(CashDesk cashDesk, int sleep)
+        {
+            while (isWorking)
+            {
+                if (cashDesk.Count > 0)
                 {
-                    cart.Add(prod);
+                    cashDesk.Dequeue();
+                    Thread.Sleep(sleep);
                 }
-                carts.Enqueue(cart); // добавляем в общий список
             }
+        }
 
-            while (carts.Count > 0)  // расставляем по кассам
+        private void CreateCarts(int customerCounts, int sleep)
+        {
+            while (isWorking)
             {
-                var cash = CashDesks[rnd.Next(CashDesks.Count - 1)]; // выбираем случайную кассу
-                cash.Enqueue(carts.Dequeue());
-            }
+                var customers = Generator.GetNewCustomers(customerCounts);
 
-            while (true) // выпускаем по 1 человеку с кассы
-            {
-                var cash = CashDesks[rnd.Next(CashDesks.Count - 1)]; // выбираем случайную кассу
-                var money = cash.Dequeue();
+                foreach (var customer in customers) // соединили с покупателем
+                {
+                    var cart = new Cart(customer);
+                    foreach (var product in Generator.GetRandomProducts(10, 30))
+                    {
+                        cart.Add(product);
+                    }
+
+                    var cash = CashDesks[rnd.Next(CashDesks.Count)]; // выбираем случайную очередь
+                    cash.Enqueue(cart);
+                }
+
+                Thread.Sleep(sleep); // приоставнока потока
             }
         }
     }
