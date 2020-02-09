@@ -37,7 +37,7 @@ namespace CrmUi
             Price.Name = "numericUpDown" + number;
             Price.Size = new System.Drawing.Size(120, 20);
             Price.TabIndex = number;
-            Price.Maximum = 100000000000000000;
+            Price.Maximum = 1000000000000000;
 
             QueueLength.Location = new System.Drawing.Point(x + 250, y);
             QueueLength.Maximum = cashDesk.MaxQueueLength;
@@ -59,12 +59,12 @@ namespace CrmUi
         private void CashDesk_CheckClosed(object sender, Check e)
         {
             // синтаксическая конструкция, помогает перекинуть из ассинхронного потока в основной
-            Price.Invoke((Action)delegate 
-            { 
+            Price.Invoke((Action)delegate
+            {
                 Price.Value += e.Price;
                 QueueLength.Value = cashDesk.Count;
                 LeaveCustomerCount.Text = cashDesk.ExitCustomer.ToString();
-            }); 
+            });
         }
     }
 }
