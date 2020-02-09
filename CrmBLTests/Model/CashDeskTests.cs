@@ -29,7 +29,7 @@ namespace CrmBL.Model.Tests
             var seller = new Seller()
             {
                 Name = "sellername",
-                SellerID = 1
+                SellerId = 1
             };
 
             var product1 = new Product()
