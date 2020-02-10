@@ -108,7 +108,6 @@ namespace CrmBL.Model
 
                 CheckClosed?.Invoke(this, check); // генерируем событие (? - проверка на null)
             }
-
             return sum;
         }
         public override string ToString()

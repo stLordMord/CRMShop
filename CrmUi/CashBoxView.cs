@@ -59,7 +59,7 @@ namespace CrmUi
         private void CashDesk_CheckClosed(object sender, Check e)
         {
             // синтаксическая конструкция, помогает перекинуть из ассинхронного потока в основной
-            Price.Invoke((Action)delegate
+            Price.BeginInvoke((Action)delegate
             {
                 Price.Value += e.Price;
                 QueueLength.Value = cashDesk.Count;

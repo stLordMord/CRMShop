@@ -45,8 +45,8 @@ namespace CrmUi
 
         private void checkToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var catalogCheck = new Catalog<Check>(db.Checks, db);
-            catalogCheck.Show();
+            var checkCustomer = new Catalog<Check>(db.Checks, db);
+            checkCustomer.Show();
         }
 
         private void customerAddToolStripMenuItem2_Click(object sender, EventArgs e)
@@ -136,7 +136,6 @@ namespace CrmUi
 
                 cart.Customer = customer;
             }
-
             linkLabel1.Text = $"Здравствуй, {customer.Name}";
         }
 
